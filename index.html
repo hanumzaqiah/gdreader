@@ -3,179 +3,181 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Daily 1 - Hanum</title>
+<title>A-22-125-Hanum Zaqiah Permatasari</title>
+
+<!-- PDF.js CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
 
 <style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: 'Segoe UI', sans-serif;
-    }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+}
 
-    body {
-        background: #f4f6f9;
-    }
+body {
+    background: #f4f6f9;
+}
 
-    header {
-        background: #c40000;
-        color: white;
-        text-align: center;
-        padding: 20px;
-    }
+header {
+    background: #c40000;
+    color: white;
+    text-align: center;
+    padding: 20px;
+}
 
-    header h1 {
-        font-size: 28px;
-    }
+header h2 {
+    margin-bottom: 5px;
+}
 
-    header p {
-        font-size: 14px;
-        opacity: 0.9;
-    }
+.container {
+    max-width: 950px;
+    margin: 20px auto;
+    padding: 15px;
+}
 
-    .container {
-        max-width: 1000px;
-        margin: 20px auto;
-        padding: 15px;
-    }
+.card {
+    background: white;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
 
-    .card {
-        background: white;
-        padding: 15px;
-        border-radius: 12px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
+.controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
 
-    .input-group {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
+button {
+    background: #c40000;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+}
 
-    input {
-        flex: 1;
-        padding: 12px;
-        border-radius: 8px;
-        border: 1px solid #ccc;
-    }
+button:hover {
+    background: #900000;
+}
 
-    button {
-        padding: 12px 20px;
-        border: none;
-        border-radius: 8px;
-        background: #c40000;
-        color: white;
-        cursor: pointer;
-        transition: 0.3s;
-    }
+input {
+    padding: 6px;
+    width: 70px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
 
-    button:hover {
-        background: #900000;
-    }
+canvas {
+    width: 100%;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+}
 
-    .nav {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin: 15px 0;
-    }
+footer {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 12px;
+    color: gray;
+}
 
-    .nav button {
-        width: 50px;
+@media (max-width: 600px) {
+    .controls {
+        flex-direction: column;
     }
-
-    iframe {
-        width: 100%;
-        height: 600px;
-        border: none;
-        border-radius: 10px;
-        background: #1e3a5f;
-    }
-
-    footer {
-        text-align: center;
-        margin-top: 20px;
-        font-size: 12px;
-        color: gray;
-    }
-
-    /* RESPONSIVE */
-    @media (max-width: 600px) {
-        iframe {
-            height: 400px;
-        }
-
-        header h1 {
-            font-size: 22px;
-        }
-    }
+}
 </style>
 </head>
 
 <body>
 
-<header>
-    <h1>Daily 1</h1>
-    <p>Hanum Zaqiah Permatasari - 202210370311125 - RK A</p>
-</header>
 
 <div class="container">
-    <div class="card">
+<div class="card">
 
-        <div class="input-group">
-            <input type="text" id="link" 
-            value="https://drive.google.com/file/d/1ewNhvYGoxFjso9puvNEKWY0a41lAOUaZ/view?usp=sharing">
-            <button onclick="bukaPDF()">Buka</button>
+    <div class="controls">
+        <button onclick="prevPage()">‹ Prev</button>
+
+        <div>
+            Halaman <span id="page_num">1</span> / <span id="page_count">0</span>
+            <input type="number" id="jump" min="1" placeholder="Ke">
+            <button onclick="jumpPage()">Go</button>
         </div>
 
-        <div class="nav">
-            <button onclick="prevPage()">‹</button>
-            <span id="halaman">Halaman 1</span>
-            <button onclick="nextPage()">›</button>
-        </div>
-
-        <iframe id="viewer"></iframe>
-
+        <button onclick="nextPage()">Next ›</button>
     </div>
 
-    <footer>
-        © 2026 - GD Reader | UMM
-    </footer>
+    <canvas id="pdf-render"></canvas>
+
+</div>
+
+<footer>
+    © 2026 - PDF Reader UMM
+</footer>
 </div>
 
 <script>
-let currentPage = 1;
-let baseLink = "";
+let pdfDoc = null;
+let pageNum = 1;
+let scale = 1.5;
+let canvas = document.getElementById('pdf-render');
+let ctx = canvas.getContext('2d');
 
-// AUTO LOAD saat pertama buka
-window.onload = function() {
-    bukaPDF();
-};
+// 🔥 GANTI DENGAN LINK PDF KAMU
+const url = "https://hanumzaqiah.github.io/gdreader/modul.pdf";
 
-function bukaPDF() {
-    let link = document.getElementById("link").value;
+// LOAD PDF
+pdfjsLib.getDocument(url).promise.then(function(pdf) {
+    pdfDoc = pdf;
+    document.getElementById('page_count').textContent = pdf.numPages;
+    renderPage(pageNum);
+}).catch(function(error){
+    alert("PDF gagal dimuat! Cek link atau file PDF.");
+    console.error(error);
+});
 
-    // ubah ke preview
-    baseLink = link.replace("/view?usp=sharing", "/preview");
+// RENDER PAGE
+function renderPage(num) {
+    pdfDoc.getPage(num).then(function(page) {
+        let viewport = page.getViewport({ scale: scale });
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
 
-    currentPage = 1;
-    tampilkan();
+        let renderContext = {
+            canvasContext: ctx,
+            viewport: viewport
+        };
+
+        page.render(renderContext);
+        document.getElementById('page_num').textContent = num;
+    });
 }
 
-function tampilkan() {
-    document.getElementById("viewer").src = baseLink + "#page=" + currentPage;
-    document.getElementById("halaman").innerText = "Halaman " + currentPage;
-}
-
+// NEXT
 function nextPage() {
-    currentPage++;
-    tampilkan();
+    if (pageNum >= pdfDoc.numPages) return;
+    pageNum++;
+    renderPage(pageNum);
 }
 
+// PREV
 function prevPage() {
-    if (currentPage > 1) {
-        currentPage--;
-        tampilkan();
+    if (pageNum <= 1) return;
+    pageNum--;
+    renderPage(pageNum);
+}
+
+// JUMP
+function jumpPage() {
+    let input = document.getElementById("jump").value;
+    if (input >= 1 && input <= pdfDoc.numPages) {
+        pageNum = parseInt(input);
+        renderPage(pageNum);
     }
 }
 </script>
