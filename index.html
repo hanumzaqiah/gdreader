@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily 1 - Hanum</title>
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+        background: #f4f6f9;
+    }
+
+    header {
+        background: #c40000;
+        color: white;
+        text-align: center;
+        padding: 20px;
+    }
+
+    header h1 {
+        font-size: 28px;
+    }
+
+    header p {
+        font-size: 14px;
+        opacity: 0.9;
+    }
+
+    .container {
+        max-width: 1000px;
+        margin: 20px auto;
+        padding: 15px;
+    }
+
+    .card {
+        background: white;
+        padding: 15px;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .input-group {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    input {
+        flex: 1;
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+    }
+
+    button {
+        padding: 12px 20px;
+        border: none;
+        border-radius: 8px;
+        background: #c40000;
+        color: white;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    button:hover {
+        background: #900000;
+    }
+
+    .nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 15px 0;
+    }
+
+    .nav button {
+        width: 50px;
+    }
+
+    iframe {
+        width: 100%;
+        height: 600px;
+        border: none;
+        border-radius: 10px;
+        background: #1e3a5f;
+    }
+
+    footer {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 12px;
+        color: gray;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 600px) {
+        iframe {
+            height: 400px;
+        }
+
+        header h1 {
+            font-size: 22px;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>Daily 1</h1>
+    <p>Hanum Zaqiah Permatasari - 202210370311125 - RK A</p>
+</header>
+
+<div class="container">
+    <div class="card">
+
+        <div class="input-group">
+            <input type="text" id="link" 
+            value="https://drive.google.com/file/d/1ewNhvYGoxFjso9puvNEKWY0a41lAOUaZ/view?usp=sharing">
+            <button onclick="bukaPDF()">Buka</button>
+        </div>
+
+        <div class="nav">
+            <button onclick="prevPage()">‹</button>
+            <span id="halaman">Halaman 1</span>
+            <button onclick="nextPage()">›</button>
+        </div>
+
+        <iframe id="viewer"></iframe>
+
+    </div>
+
+    <footer>
+        © 2026 - GD Reader | UMM
+    </footer>
+</div>
+
+<script>
+let currentPage = 1;
+let baseLink = "";
+
+// AUTO LOAD saat pertama buka
+window.onload = function() {
+    bukaPDF();
+};
+
+function bukaPDF() {
+    let link = document.getElementById("link").value;
+
+    // ubah ke preview
+    baseLink = link.replace("/view?usp=sharing", "/preview");
+
+    currentPage = 1;
+    tampilkan();
+}
+
+function tampilkan() {
+    document.getElementById("viewer").src = baseLink + "#page=" + currentPage;
+    document.getElementById("halaman").innerText = "Halaman " + currentPage;
+}
+
+function nextPage() {
+    currentPage++;
+    tampilkan();
+}
+
+function prevPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        tampilkan();
+    }
+}
+</script>
+
+</body>
+</html>
